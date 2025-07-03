@@ -23,3 +23,35 @@
 # OS files
 .DS_Store
 Thumbs.db
+
+# SolidWorks temporary files
+~$*
+*.bak
+*.swp
+*~
+
+# SolidWorks backup files
+*.SLDPRT.bak
+*.SLDASM.bak
+
+# SolidWorks temporary files
+~$*
+*.bak
+*.swp
+*~
+
+# SolidWorks backup files
+*.SLDPRT.bak
+*.SLDASM.bak
+*.SLDDRW.bak
+
+# CAD temporary files
+*.tmp
+*.temp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Manufacturing outputs (if regenerated)
+/mechanical/export/step/
