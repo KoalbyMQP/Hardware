@@ -1,0 +1,25 @@
+# CAD temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# KiCad backup files
+*.bck
+*.kicad_pcb-bak
+*.sch-bak
+
+# Altium Designer
+*.SchDoc.zip
+*.PrjPCB.zip
+
+# Fusion 360
+*.f3d.bak*
+
+# Manufacturing outputs (if regenerated)
+/electrical/pcb/*/gerbers/
+/electrical/pcb/*/pick-and-place/
+
+# OS files
+.DS_Store
+Thumbs.db
