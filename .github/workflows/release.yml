@@ -1,0 +1,44 @@
+name: Hardware Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v<major>.<minor>.<path>)'
+        required: true
+        default: 'CHANGE_ME'
+      release_name:
+        description: 'Release name'
+        required: true
+        default: 'Humanoid Robots Hardware Release'
+
+jobs:
+  package-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+        fetch-depth: 0
+
+    - name: Install packaging tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y zip tree
+
+    - name: Create release packages
+      run: |
+        # Create temporary packaging directory
+        mkdir -p packages
+        
+        echo "📦 Creating release packages for ${{ github.event.inputs.version }}"
+        
+        # Package 1: Complete Project (everything)
+        echo "Creating complete package..."
+        zip -r "packages/hardware-complete-${{ github.event.inputs.version }}.zip" . \
+          -x "*.git*" "packages/*" "*.DS_Store" "node_modules/*"
+        
+        # Include STEP exports
+        if
