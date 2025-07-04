@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., v<major>.<minor>.<path>)'
+        description: 'Release version (e.g., v<major>.<minor>.<patch>)'
         required: true
         default: 'CHANGE_ME'
       release_name:
@@ -28,17 +28,57 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y zip tree
 
-    - name: Create release packages
+    - name: Create release package
       run: |
-        # Create temporary packaging directory
-        mkdir -p packages
+        echo "📦 Creating complete release package for ${{ github.event.inputs.version }}"
         
-        echo "📦 Creating release packages for ${{ github.event.inputs.version }}"
+        # Create the complete package (everything except git and temp files)
+        zip -r "hardware-complete-${{ github.event.inputs.version }}.zip" . \
+          -x "*.git*" "*.DS_Store" "node_modules/*" "__pycache__/*" "*.pyc" "*.tmp"
         
-        # Package 1: Complete Project (everything)
-        echo "Creating complete package..."
-        zip -r "packages/hardware-complete-${{ github.event.inputs.version }}.zip" . \
-          -x "*.git*" "packages/*" "*.DS_Store" "node_modules/*"
-        
-        # Include STEP exports
-        if
+        # Show what was created
+        ls -lh "hardware-complete-${{ github.event.inputs.version }}.zip"
+        echo "Package created successfully"
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.event.inputs.version }}
+        release_name: ${{ github.event.inputs.release_name }} ${{ github.event.inputs.version }}
+        body: |
+          ## ${{ github.event.inputs.release_name }} ${{ github.event.inputs.version }}
+          
+          Complete hardware design package including:
+          
+          ### Contents
+          TODO: List all included files and directories here
+
+          ### Usage
+          1. Download: `hardware-complete-${{ github.event.inputs.version }}.zip`
+          2. Extract: `unzip hardware-complete-${{ github.event.inputs.version }}.zip`
+          3. Access all project files in the extracted directory
+          
+          **Generated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')  
+          **Commit:** ${{ github.sha }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./hardware-complete-${{ github.event.inputs.version }}.zip
+        asset_name: hardware-complete-${{ github.event.inputs.version }}.zip
+        asset_content_type: application/zip
+
+    - name: Summary
+      run: |
+        echo "## Release Created!" >> $GITHUB_STEP_SUMMARY
+        echo "**Version:** ${{ github.event.inputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Package:** hardware-complete-${{ github.event.inputs.version }}.zip" >> $GITHUB_STEP_SUMMARY
+        echo "**Size:** $(ls -lh hardware-complete-${{ github.event.inputs.version }}.zip | awk '{print $5}')" >> $GITHUB_STEP_SUMMARY
